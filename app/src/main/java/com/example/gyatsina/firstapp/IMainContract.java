@@ -11,4 +11,8 @@ public interface IMainContract {
         void takePicture();
         void openGallery();
     }
+
+    interface MainPresenter{
+
+    }
 }
