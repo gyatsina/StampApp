@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FirstApp</string>
+    <string name="app_name">StampApp</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -10,5 +10,5 @@
     <string name="camera_permission_explanation">Application wants to access your camera.</string>
     <string name="ok">Ok</string>
     <string name="do_not_allow">No</string>
-    <string name="camera_no_permission">It's impossible to use camera without a permission</string>
+    <string name="camera_no_permission">It\'s impossible to use camera without a permission</string>
 </resources>

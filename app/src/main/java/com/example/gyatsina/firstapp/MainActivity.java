@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.gyatsina.firstapp.camera.CameraPermissionsHelper;
 import com.example.gyatsina.firstapp.logger.DebugLogger;
+import com.example.gyatsina.firstapp.network.StampApi;
 import com.squareup.picasso.Picasso;
 
 import static com.example.gyatsina.firstapp.camera.CameraPermissionsHelper.CAMERA_PERMISSION_REQUEST_CODE;
@@ -35,6 +36,14 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_READ_GALLERY = 42;
     private CameraPermissionsHelper cameraPermissionsHelper;
     private ImageView mImageView;
+    private StampApi stampApi;
+
+    private void initializeApi() {
+        StampApplication app = (StampApplication) getApplication();
+        if (app != null) {
+            stampApi = app.getStampApi();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +51,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         mImageView = findViewById(R.id.picked_photo);
+
+        initializeApi();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,6 +63,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                stampApi.login();
             }
         });
 
