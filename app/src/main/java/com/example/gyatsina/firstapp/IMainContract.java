@@ -10,6 +10,7 @@ public interface IMainContract {
 
     interface MainView{
         void checkCameraPermissions();
+        void checkStoragePermissions();
         void takePicture();
         void openGallery();
     }

@@ -3,6 +3,8 @@ package com.example.gyatsina.firstapp.network;
 import android.util.Log;
 
 import com.example.gyatsina.firstapp.BuildConfig;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.io.IOException;
@@ -51,11 +53,15 @@ public class RestClientProvider {
      * This is our DAO to communicate with server.
      */
     public Retrofit getRetrofit() {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
         return new Retrofit.Builder()
                 .baseUrl(mBaseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .client(getOkHttpClient())
+//                .client(getOkHttpClient())
                 .build();
     }
 

@@ -7,8 +7,12 @@
 
 
     <string name="camera_permission_title">Please allow camera access!</string>
+    <string name="storage_permission_title">Please allow to read external storage!</string>
     <string name="camera_permission_explanation">Application wants to access your camera.</string>
+    <string name="storage_permission_explanation">Application wants to access your storage.</string>
     <string name="ok">Ok</string>
     <string name="do_not_allow">No</string>
     <string name="camera_no_permission">It\'s impossible to use camera without a permission</string>
+    <string name="storage_no_permission">It\'s impossible to access storage without a permission</string>
+    <string name="request_error">Request error</string>
 </resources>

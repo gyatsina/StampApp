@@ -7,8 +7,12 @@
 
 
     <string name="camera_permission_title">Требуется запуск камеры!</string>
+    <string name="storage_permission_title">Требуется доступ к хранилищу!</string>
     <string name="camera_permission_explanation">Во время работы приложения вы будете делать фото</string>
+    <string name="storage_permission_explanation">Во время работы приложения вы будете делать пользоваться галлереей</string>
     <string name="ok">Ok</string>
     <string name="do_not_allow">Не разрешаю</string>
     <string name="camera_no_permission">Воспользоваться камерой без разрешения невозможно</string>
+    <string name="storage_no_permission">Воспользоваться хранилищем фотографий без разрешения невозможно</string>
+    <string name="request_error">Запрос не удался</string>
 </resources>

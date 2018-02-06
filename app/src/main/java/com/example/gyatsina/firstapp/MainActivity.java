@@ -2,41 +2,52 @@ package com.example.gyatsina.firstapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.gyatsina.firstapp.camera.CameraPermissionsHelper;
+import com.example.gyatsina.firstapp.camera.PermissionsHelper;
+import com.example.gyatsina.firstapp.image_processing.RealPathUtil;
 import com.example.gyatsina.firstapp.logger.DebugLogger;
 import com.example.gyatsina.firstapp.network.StampApi;
+import com.example.gyatsina.firstapp.network.events.LoginEvent;
 import com.squareup.picasso.Picasso;
 
-import static com.example.gyatsina.firstapp.camera.CameraPermissionsHelper.CAMERA_PERMISSION_REQUEST_CODE;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-public class MainActivity extends AppCompatActivity
+import java.io.File;
+
+import static com.example.gyatsina.firstapp.camera.PermissionsHelper.CAMERA_PERMISSION_REQUEST_CODE;
+import static com.example.gyatsina.firstapp.camera.PermissionsHelper.STORAGE_PERMISSION_REQUEST_CODE;
+import static com.example.gyatsina.firstapp.network.events.LoginEvent.SUCCESS;
+
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, IMainContract.MainView {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_IMAGE_CAPTURE = 1000;
     private static final int REQUEST_READ_GALLERY = 42;
-    private CameraPermissionsHelper cameraPermissionsHelper;
+    private PermissionsHelper permissionsHelper;
     private ImageView mImageView;
     private StampApi stampApi;
+    private File file;
 
     private void initializeApi() {
         StampApplication app = (StampApplication) getApplication();
@@ -61,9 +72,6 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
                 stampApi.login();
             }
         });
@@ -85,7 +93,10 @@ public class MainActivity extends AppCompatActivity
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
             case CAMERA_PERMISSION_REQUEST_CODE:
-                cameraPermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                permissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
+            case STORAGE_PERMISSION_REQUEST_CODE:
+                permissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
                 break;
         }
     }
@@ -133,6 +144,7 @@ public class MainActivity extends AppCompatActivity
             checkCameraPermissions();
         } else if (id == R.id.nav_gallery) {
             openGallery();
+            checkStoragePermissions();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -146,16 +158,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void checkCameraPermissions() {
-        if (cameraPermissionsHelper == null) {
-            cameraPermissionsHelper = new CameraPermissionsHelper(this, new CameraPermissionsHelper.IPermissionResult() {
+        if (permissionsHelper == null) {
+            permissionsHelper = new PermissionsHelper(this, new PermissionsHelper.ICameraPermissionResult() {
                 @Override
-                public void onPermissionGranted() {
+                public void onCameraPermissionGranted() {
                     DebugLogger.d(TAG, "Camera permission granted");
                     takePicture();
                 }
 
                 @Override
-                public void onPermissionDenied() {
+                public void onCameraPermissionDenied() {
                     // do nothing
                     DebugLogger.d(TAG, "Camera permission not granted");
                     Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.camera_no_permission), Toast.LENGTH_SHORT);
@@ -163,8 +175,28 @@ public class MainActivity extends AppCompatActivity
             });
         }
 
-        cameraPermissionsHelper.checkPermissions();
+        permissionsHelper.checkCameraPermissions();
+    }
 
+    @Override
+    public void checkStoragePermissions() {
+        if (permissionsHelper == null) {
+            permissionsHelper = new PermissionsHelper(this, new PermissionsHelper.IStoragePermissionResult() {
+                @Override
+                public void onStoragePermissionGranted() {
+                    DebugLogger.d(TAG, "Storage permission granted");
+                }
+
+                @Override
+                public void onStoragePermissionDenied() {
+                    // do nothing
+                    DebugLogger.d(TAG, "Storage permission not granted");
+                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.storage_no_permission), Toast.LENGTH_SHORT);
+                }
+            });
+        }
+
+        permissionsHelper.checkStoragePermissions();
     }
 
     @Override
@@ -190,11 +222,23 @@ public class MainActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
 
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_READ_GALLERY:
                 if (resultCode == Activity.RESULT_OK) {
                     if (resultData != null) {
                         Uri uri = resultData.getData();
+
+//                        file = new File(uri.getPath());
+                        String realPath = RealPathUtil.getRealPathUri(this, uri);
+//                        Uri uriFromPath = Uri.fromFile(new File(realPath));
+                        file = new File(uri.toString());
+
+
+                        DebugLogger.v("REQUEST_READ_GALLERY uri: ", "" + uri);
+                        DebugLogger.v("REQUEST_READ_GALLERY uri.path: ", uri.getPath());
+//                        DebugLogger.v("REQUEST_READ_GALLERY realPath: ", realPath);
+//                        DebugLogger.v("REQUEST_READ_GALLERY uriFromPath: ", "" + uriFromPath);
+//                        File file = FileUtils.getFile(this, fileUri);
                         Picasso.with(this).load(uri).into(mImageView);
                     }
                 }
@@ -210,4 +254,54 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
     }
+
+    public String getRealPathFromURI(Uri contentUri) {
+
+        String result;
+        Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentUri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+
+    }
+
+    private boolean isExternalStorageAvailable() {
+        String state = Environment.getExternalStorageState();
+        return state.equals(Environment.MEDIA_MOUNTED);
+    }
+
+    private String getGalleryPhotoName(Uri contentUri) {
+        String displayName = null;
+        Cursor cursor = getContentResolver().query(contentUri,
+                null, // Which columns to return
+                null,       // WHERE clause; which rows to return (all rows)
+                null,       // WHERE clause selection arguments (none)
+                null); // Order-by clause (ascending by name)
+        if (cursor != null && cursor.moveToFirst()) {
+            displayName = cursor.getString(
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+        }
+
+        return displayName;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(LoginEvent event) {
+        int responseCode = event.getResponseCode();
+        if (responseCode == SUCCESS) {
+            Toast.makeText(this, "all ok", Toast.LENGTH_LONG).show();
+            DebugLogger.v("onMessageEvent", "success");
+            stampApi.uploadFile(getApplicationContext(), file);
+        } else {
+            Toast.makeText(this, R.string.request_error, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    ;
 }
