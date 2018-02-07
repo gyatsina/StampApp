@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity
     private ImageView mImageView;
     private StampApi stampApi;
     private File file;
+    private String realPath;
 
     private void initializeApi() {
         StampApplication app = (StampApplication) getApplication();
@@ -72,7 +73,10 @@ public class MainActivity extends BaseActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stampApi.login();
+//                stampApi.login();
+//                stampApi.uploadFile(getApplicationContext(), file);
+                stampApi.uploadFile(getApplicationContext(), realPath);
+//                stampApi.uploadFile(realPath);
             }
         });
 
@@ -228,22 +232,15 @@ public class MainActivity extends BaseActivity
                     if (resultData != null) {
                         Uri uri = resultData.getData();
 
-//                        file = new File(uri.getPath());
-                        String realPath = RealPathUtil.getRealPathUri(this, uri);
-//                        Uri uriFromPath = Uri.fromFile(new File(realPath));
-                        file = new File(uri.toString());
-
-
-                        DebugLogger.v("REQUEST_READ_GALLERY uri: ", "" + uri);
-                        DebugLogger.v("REQUEST_READ_GALLERY uri.path: ", uri.getPath());
-//                        DebugLogger.v("REQUEST_READ_GALLERY realPath: ", realPath);
-//                        DebugLogger.v("REQUEST_READ_GALLERY uriFromPath: ", "" + uriFromPath);
-//                        File file = FileUtils.getFile(this, fileUri);
+                        realPath = RealPathUtil.getRealPathUri(this, uri);
+                        file = new File(realPath);
+                        DebugLogger.v("REQUEST_READ_GALLERY realPath: ", realPath);
                         Picasso.with(this).load(uri).into(mImageView);
                     }
                 }
                 break;
             case REQUEST_IMAGE_CAPTURE:
+                https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
                 if (resultCode == Activity.RESULT_OK) {
                     if (resultData != null) {
                         Bundle extras = resultData.getExtras();
@@ -297,7 +294,7 @@ public class MainActivity extends BaseActivity
         if (responseCode == SUCCESS) {
             Toast.makeText(this, "all ok", Toast.LENGTH_LONG).show();
             DebugLogger.v("onMessageEvent", "success");
-            stampApi.uploadFile(getApplicationContext(), file);
+//            stampApi.uploadFile(getApplicationContext(), file);
         } else {
             Toast.makeText(this, R.string.request_error, Toast.LENGTH_LONG).show();
         }

@@ -1,11 +1,9 @@
 package com.example.gyatsina.firstapp.network;
 
-import android.util.Log;
-
 import com.example.gyatsina.firstapp.BuildConfig;
+import com.example.gyatsina.firstapp.logger.DebugLogger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import java.io.IOException;
 
@@ -60,8 +58,8 @@ public class RestClientProvider {
         return new Retrofit.Builder()
                 .baseUrl(mBaseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-//                .client(getOkHttpClient())
+//                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getOkHttpClient())
                 .build();
     }
 
@@ -88,7 +86,7 @@ public class RestClientProvider {
         return new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override
             public void log(String message) {
-                Log.d(TAG, message);
+                DebugLogger.d(TAG, message);
             }
         }).setLevel(HttpLoggingInterceptor.Level.BODY);
     }

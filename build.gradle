@@ -16,7 +16,7 @@ buildscript {
 
 allprojects {
     configurations.all {
-        resolutionStrategy.force 'com.squareup.okhttp3:okhttp:3.5.0'
+        resolutionStrategy.force 'com.squareup.okhttp3:okhttp:3.9.1'
     }
     repositories {
         google()

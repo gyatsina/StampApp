@@ -1,0 +1,50 @@
+POST Multipart Form Data using Retrofit 2.0 including image
+
+https://stackoverflow.com/questions/34562950/post-multipart-form-data-using-retrofit-2-0-including-image
+===
+
+Retrofit 2 — How to Upload Files to Server
+
+https://futurestud.io/tutorials/retrofit-2-how-to-upload-files-to-server
+https://www.youtube.com/watch?time_continue=125&v=yKxLgEfY49A
+===
+
+Uploading Images to Server android
+
+https://stackoverflow.com/questions/20322528/uploading-images-to-server-android
+===
+
+Upload Image From Android App Using Retrofit 2
+
+https://medium.com/@adinugroho/upload-image-from-android-app-using-retrofit-2-ae6f922b184c
+https://github.com/hidrodixtion/Example-Retrofit-Image-Upload/blob/master/app/src/main/java/com/projectbox/uploadfile/MainActivity.java
+===
+
+Consuming APIs with Retrofit
+
+https://github.com/codepath/android_guides/wiki/Consuming-APIs-with-Retrofit
+
+@Multipart
+@POST("some/endpoint")
+Call<Response> uploadImage(@Part("description") String description, @Part("image") RequestBody image)
+
+
+MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+file = new File("/storage/emulated/0/Pictures/MyApp/test.png");
+RequestBody requestBody = RequestBody.create(MEDIA_TYPE_PNG, file);
+Call<Response> call = apiService.uploadImage("test", requestBody);
+===
+
+How to properly upload a File (multipart/form-data) using Retrofit 2.0-beta2 #1137
+https://github.com/square/retrofit/issues/1137
+https://github.com/square/retrofit/issues/1063
+===
+
+Accessing the Camera and Stored Media
+
+https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
+===
+
+
+
+
