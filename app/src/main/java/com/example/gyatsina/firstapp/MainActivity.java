@@ -15,24 +15,30 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.gyatsina.firstapp.camera.PermissionsHelper;
 import com.example.gyatsina.firstapp.image_processing.RealPathUtil;
 import com.example.gyatsina.firstapp.logger.DebugLogger;
 import com.example.gyatsina.firstapp.network.StampApi;
+import com.example.gyatsina.firstapp.network.StampObj;
 import com.example.gyatsina.firstapp.network.events.LoginEvent;
+import com.example.gyatsina.firstapp.network.events.StampListReceivedEvent;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.util.List;
 
 import static com.example.gyatsina.firstapp.camera.PermissionsHelper.CAMERA_PERMISSION_REQUEST_CODE;
 import static com.example.gyatsina.firstapp.camera.PermissionsHelper.STORAGE_PERMISSION_REQUEST_CODE;
@@ -45,7 +51,6 @@ public class MainActivity extends BaseActivity
     private static final int REQUEST_IMAGE_CAPTURE = 1000;
     private static final int REQUEST_READ_GALLERY = 42;
     private PermissionsHelper permissionsHelper;
-    private ImageView mImageView;
     private StampApi stampApi;
     private File file;
     private String realPath;
@@ -62,21 +67,22 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mImageView = findViewById(R.id.picked_photo);
+        ImageView mImageView = findViewById(R.id.picked_photo);
 
         initializeApi();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        changeProgressBarStatus(View.GONE);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                stampApi.login();
-//                stampApi.uploadFile(getApplicationContext(), file);
+                changeProgressBarStatus(View.VISIBLE);
                 stampApi.uploadFile(getApplicationContext(), realPath);
-//                stampApi.uploadFile(realPath);
             }
         });
 
@@ -235,16 +241,19 @@ public class MainActivity extends BaseActivity
                         realPath = RealPathUtil.getRealPathUri(this, uri);
                         file = new File(realPath);
                         DebugLogger.v("REQUEST_READ_GALLERY realPath: ", realPath);
+                        ImageView mImageView = findViewById(R.id.picked_photo);
                         Picasso.with(this).load(uri).into(mImageView);
                     }
                 }
                 break;
             case REQUEST_IMAGE_CAPTURE:
-                https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
+                https:
+//guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
                 if (resultCode == Activity.RESULT_OK) {
                     if (resultData != null) {
                         Bundle extras = resultData.getExtras();
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        ImageView mImageView = findViewById(R.id.picked_photo);
                         mImageView.setImageBitmap(imageBitmap);
                     }
                 }
@@ -300,5 +309,38 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    ;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(StampListReceivedEvent event) {
+        List<StampObj> stampList = event.getStampObjects();
+        changeStampPhotoVisibility(View.GONE);
+
+        RecyclerView recyclerView = findViewById(R.id.my_recycler_view);
+        changeStampRecycleViewVisibility(View.VISIBLE);
+        changeProgressBarStatus(View.GONE);
+
+        initStampRecycleView(recyclerView, stampList);
+    }
+
+    private void changeStampPhotoVisibility(int visibility) {
+        ImageView mImageView = findViewById(R.id.picked_photo);
+        mImageView.setVisibility(visibility);
+    }
+
+    private void changeStampRecycleViewVisibility(int visibility) {
+        RecyclerView mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView.setVisibility(visibility);
+    }
+
+    private void changeProgressBarStatus(int visibility){
+        ProgressBar pgsBar = findViewById(R.id.pBar);
+        pgsBar.setVisibility(visibility);
+    }
+
+    private void initStampRecycleView(RecyclerView rView, List<StampObj> stampList) {
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        rView.setLayoutManager(mLayoutManager);
+
+        RecyclerView.Adapter mAdapter = new MyAdapter(this, stampList);
+        rView.setAdapter(mAdapter);
+    }
 }

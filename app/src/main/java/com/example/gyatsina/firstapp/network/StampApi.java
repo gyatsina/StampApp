@@ -8,6 +8,7 @@ import android.util.Base64;
 import com.example.gyatsina.firstapp.BuildConfig;
 import com.example.gyatsina.firstapp.logger.DebugLogger;
 import com.example.gyatsina.firstapp.network.events.LoginEvent;
+import com.example.gyatsina.firstapp.network.events.StampListReceivedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
@@ -84,13 +85,14 @@ public class StampApi {
             @Override
             public void onResponse(Call<List<StampObj>> call,
                                    Response<List<StampObj>> response) {
-                DebugLogger.e("Upload", "success " + response.toString());
-                DebugLogger.e("Upload", "success " + response.message());
-                DebugLogger.e("Upload", "success " + response.body().toString());
                 List<StampObj> list = response.body();
-                DebugLogger.e("Upload", "list[0].title " + list.get(0).getTitle());
-                DebugLogger.e("Upload", "list[1].title " + list.get(1).getTitle());
-                DebugLogger.e("Upload", "list[2].title " + list.get(2).getTitle());
+                DebugLogger.e("Upload", "list[0].title " + list.get(0).getImage());
+                DebugLogger.e("Upload", "list[1].title " + list.get(10).getImage());
+                DebugLogger.e("Upload", "list[2].title " + list.get(15).getImage());
+
+                EventBus.getDefault().post(new StampListReceivedEvent(list));
+
+//                EventBus.getDefault().post(new LoginEvent(SUCCESS));
             }
 
             @Override
