@@ -43,6 +43,12 @@ public interface ServerDAO {
             @Field("file") String file
     );
 
+
+    @POST("addtoschudle/")
+    Call<Void> sendImageId(
+            @Query("id") String id
+    );
+
 //    @Multipart
 //    @POST("matches/")
 //    Call<ResponseBody> upload (

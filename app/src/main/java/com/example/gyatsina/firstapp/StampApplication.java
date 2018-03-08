@@ -13,6 +13,7 @@ import com.example.gyatsina.firstapp.network.StampApi;
  */
 
 public class StampApplication extends Application {
+    private static AppComponent appComponent;
 
     private final static String API_URL = "http://lots.inspinia.co.ua/";
     private StampApi mStampApi;
@@ -22,10 +23,15 @@ public class StampApplication extends Application {
         super.onCreate();
 
         initLogging();
+//        appComponent = buildComponent();
         ApiComponent apiComponent = DaggerApiComponent.builder().build();
         setRestClientBaseUrl(apiComponent.getRestClient());
 
         mStampApi = apiComponent.getStamplApi();
+    }
+
+    public static AppComponent getAppComponent() {
+        return appComponent;
     }
 
     private void initLogging() {
@@ -41,4 +47,10 @@ public class StampApplication extends Application {
     public StampApi getStampApi() {
         return mStampApi;
     }
+
+//    protected AppComponent buildComponent() {
+//        return DaggerAppComponent.builder()
+//                .appModule(new AppModule(this))
+//                .build();
+//    }
 }

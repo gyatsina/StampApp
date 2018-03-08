@@ -102,22 +102,31 @@ public class StampApi {
         });
     }
 
+    public void sendImageId(String id){
+       Call<Void> call =  mServerDAO.sendImageId(id);
+       call.enqueue(new Callback<Void>() {
+           @Override
+           public void onResponse(Call<Void> call, Response<Void> response) {
+               DebugLogger.e("sendImageId", "onResponse " + response.raw());
+                DebugLogger.e("sendImageId", "onResponse " + response.code());
+           }
+
+           @Override
+           public void onFailure(Call<Void> call, Throwable t) {
+               DebugLogger.e("sendImageId error:", t.getMessage());
+           }
+       });
+    }
+
     public void uploadFile(String fileUri) {
         MediaType MEDIA_TYPE_PNG = MediaType.parse("image/jpeg");
         File file = new File(fileUri);
-//        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_PNG, file);
-
-//        RequestBody requestBody = new MultipartBody.Builder()
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("file", "file",
-//                        RequestBody.create(MEDIA_TYPE_PNG, file))
-//                .build();
         RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
-//        Call<ResponseBody> call = mServerDAO.upload(requestBody);
+
         Call<List<JSONObject>> call = mServerDAO.upload(requestBody);
-        call.enqueue(new Callback<List<JSONObject> >() {
+        call.enqueue(new Callback<List<JSONObject>>() {
             @Override
-            public void onResponse(Call<List<JSONObject> > call, Response<List<JSONObject> > response) {
+            public void onResponse(Call<List<JSONObject>> call, Response<List<JSONObject>> response) {
 
                 DebugLogger.e("Upload", "success " + call.toString());
                 DebugLogger.e("Upload", "success " + call.getClass().toString());
@@ -129,75 +138,11 @@ public class StampApi {
             }
 
             @Override
-            public void onFailure(Call<List<JSONObject> > call, Throwable t) {
+            public void onFailure(Call<List<JSONObject>> call, Throwable t) {
                 DebugLogger.e("Upload error:", t.toString() + "__" + call.toString() + "__" + t);
             }
         });
-
-//        Call<ResponseBody> call = mServerDAO.upload(requestBody);
-//        call.enqueue(new Callback<ResponseBody>() {
-//            @Override
-//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                DebugLogger.e("Upload", "success " + response.toString());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                DebugLogger.e("Upload error:", t.getMessage());
-//            }
-//        });
     }
 
-//    public void uploadFile(Context context, File file) {
-//        RequestBody requestFile =
-//                RequestBody.create(
-//                        MediaType.parse("image/*"),
-//                        file
-//                );
-//
-//        // MultipartBody.Part is used to send also the actual file name
-//        MultipartBody.Part body =
-//                MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-//
-//        // add another part within the multipart request
-//        String descriptionString = "file";
-//        RequestBody description =
-//                RequestBody.create(
-//                        okhttp3.MultipartBody.FORM, descriptionString);
-//
-//        // finally, execute the request
-//        Call<ResponseBody> call = mServerDAO.upload(description, body);
-//        call.enqueue(new Callback<ResponseBody>() {
-//            @Override
-//            public void onResponse(Call<ResponseBody> call,
-//                                   Response<ResponseBody> response) {
-//                DebugLogger.e("Upload", "success " + response.toString());
-//                DebugLogger.e("Upload", "success " + response.message());
-//                DebugLogger.e("Upload", "success " + response.raw());
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                DebugLogger.e("Upload error:", t.getMessage());
-//            }
-//        });
-//    }
-
-//    File file = new File(imageUri.getPath());
-//    RequestBody fbody = RequestBody.create(MediaType.parse("image/*"), file);
-//    RequestBody name = RequestBody.create(MediaType.parse("text/plain"), firstNameField.getText().toString());
-//    RequestBody id = RequestBody.create(MediaType.parse("text/plain"), AZUtils.getUserId(this));
-//    Call<User> call = client.editUser(AZUtils.getToken(this), fbody, name, id);
-//        call.enqueue(new Callback<User>() {
-//        @Override
-//        public void onResponse(retrofit.Response<User> response, Retrofit retrofit) {
-//            AZUtils.printObject(response.body());
-//        }
-//
-//        @Override
-//        public void onFailure(Throwable t) {
-//            t.printStackTrace();
-//        }
-//    });
 }
 

@@ -45,7 +45,7 @@ import static com.example.gyatsina.firstapp.camera.PermissionsHelper.STORAGE_PER
 import static com.example.gyatsina.firstapp.network.events.LoginEvent.SUCCESS;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, IMainContract.MainView {
+        implements NavigationView.OnNavigationItemSelectedListener, IMainContract.MainView, OnGridClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_IMAGE_CAPTURE = 1000;
@@ -66,6 +66,7 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        StampApplication.getAppComponent().inject(this);
 
         ImageView mImageView = findViewById(R.id.picked_photo);
 
@@ -340,7 +341,12 @@ public class MainActivity extends BaseActivity
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         rView.setLayoutManager(mLayoutManager);
 
-        RecyclerView.Adapter mAdapter = new MyAdapter(this, stampList);
+        RecyclerView.Adapter mAdapter = new GridAdapter(this, stampList, this);
         rView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onItemClick(StampObj item) {
+        stampApi.sendImageId(item.getId());
     }
 }
