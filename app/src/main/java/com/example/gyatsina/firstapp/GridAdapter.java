@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.example.gyatsina.firstapp.logger.DebugLogger;
@@ -48,7 +47,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
     public GridAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                      int viewType) {
         // create a new view
-        ImageButton v = (ImageButton) LayoutInflater.from(parent.getContext())
+        ImageView v = (ImageView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.stamp_button, parent, false);
 
         ViewHolder vh = new ViewHolder(v);
