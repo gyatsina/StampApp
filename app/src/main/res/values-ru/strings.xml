@@ -4,6 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
+    <string name="welcome">Welcome to Stamp App!</string>
 
 
     <string name="camera_permission_title">Требуется запуск камеры!</string>
@@ -15,4 +16,9 @@
     <string name="camera_no_permission">Воспользоваться камерой без разрешения невозможно</string>
     <string name="storage_no_permission">Воспользоваться хранилищем фотографий без разрешения невозможно</string>
     <string name="request_error">Запрос не удался</string>
+    <string name="take_photo">Сделайте фото или выберите его из галлереи</string>
+    <string name="float_button_error">Не выбрано ни одного фото</string>
+
+    <string name="id_chosen">Выбранный id был выслан на backend</string>
+    <string name="stamp_photo_error">Для этой марки не найдено результатов</string>
 </resources>

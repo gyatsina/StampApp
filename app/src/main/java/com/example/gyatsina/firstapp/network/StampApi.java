@@ -7,7 +7,9 @@ import android.util.Base64;
 
 import com.example.gyatsina.firstapp.BuildConfig;
 import com.example.gyatsina.firstapp.logger.DebugLogger;
+import com.example.gyatsina.firstapp.network.events.ImageIdSentEvent;
 import com.example.gyatsina.firstapp.network.events.LoginEvent;
+import com.example.gyatsina.firstapp.network.events.StampListErrorEvent;
 import com.example.gyatsina.firstapp.network.events.StampListReceivedEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -73,6 +75,7 @@ public class StampApi {
     }
 
     public void uploadFile(Context context, String fileUri) {
+        DebugLogger.e("================uploadFile fileUri ", fileUri);
         Bitmap bm = BitmapFactory.decodeFile(fileUri.toString());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -87,16 +90,13 @@ public class StampApi {
                                    Response<List<StampObj>> response) {
                 List<StampObj> list = response.body();
                 DebugLogger.e("Upload", "list[0].title " + list.get(0).getImage());
-                DebugLogger.e("Upload", "list[1].title " + list.get(10).getImage());
-                DebugLogger.e("Upload", "list[2].title " + list.get(15).getImage());
 
                 EventBus.getDefault().post(new StampListReceivedEvent(list));
-
-//                EventBus.getDefault().post(new LoginEvent(SUCCESS));
             }
 
             @Override
             public void onFailure(Call<List<StampObj>> call, Throwable t) {
+                EventBus.getDefault().post(new StampListErrorEvent());
                 DebugLogger.e("Upload error:", t.getMessage());
             }
         });
@@ -109,6 +109,7 @@ public class StampApi {
            public void onResponse(Call<Void> call, Response<Void> response) {
                DebugLogger.e("sendImageId", "onResponse " + response.raw());
                 DebugLogger.e("sendImageId", "onResponse " + response.code());
+               EventBus.getDefault().post(new ImageIdSentEvent());
            }
 
            @Override
