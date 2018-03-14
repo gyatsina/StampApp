@@ -87,11 +87,12 @@ public class MainActivity extends BaseActivity
             @Override
             public void onClick(View view) {
 //                stampApi.login();
+                changeProgressBarStatus(View.VISIBLE);
                 if (realPath != null) {
-                    changeProgressBarStatus(View.VISIBLE);
                     DebugLogger.e("================FloatingActionButton click ", realPath);
                     stampApi.uploadFile(getApplicationContext(), realPath);
                 } else {
+                    changeProgressBarStatus(View.GONE);
                     Toast.makeText(
                             getApplicationContext(),
                             getApplicationContext().getResources().getText(R.string.float_button_error),
@@ -257,6 +258,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
+        changeStampRecycleViewVisibility(View.GONE);
         changeWelcomeTextVisibility(View.GONE);
 
         switch (requestCode) {
@@ -278,25 +280,11 @@ public class MainActivity extends BaseActivity
 // https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
                 if (resultCode == Activity.RESULT_OK) {
                     if (resultData != null) {
-//                        Bundle extras = resultData.getExtras();
-////                        if(extras!=null) {
-//                            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                            ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
-//                            mImageView.setImageBitmap(imageBitmap);
-////                        }
-//
-////                        Uri tempUri = getImageUri(imageBitmap);
-////                        realPath = getRealPathFromURI(tempUri);
-////                        DebugLogger.e("================uri camera ", realPath);
-
-
-//                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath(), cameraPhotoName);
-//                        Uri uri = Uri.fromFile(file);
                         Uri uri = Uri.fromFile(cameraPhotoFile);
 
                         try {
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            bitmap = crupAndScale(bitmap, 300); // if you mind scaling
+//                            bitmap = crupAndScale(bitmap, 500); // if you mind scaling
                             ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
                             mImageView.setImageBitmap(bitmap);
                         } catch (FileNotFoundException e) {
@@ -322,6 +310,24 @@ public class MainActivity extends BaseActivity
         return source;
     }
 
+    private void initStampRecycleView(RecyclerView rView, List<StampObj> stampList) {
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        rView.setLayoutManager(mLayoutManager);
+
+        RecyclerView.Adapter mAdapter = new GridAdapter(this, stampList, this);
+        rView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onItemClick(StampObj item) {
+        stampApi.sendImageId(item.getId());
+    }
+
+    private void cleanRealPathToFile() {
+        realPath = null;
+    }
+
+    // -------------------- =================== VISIBILITY ===================== ---------------------------------
     private ImageView changeStampPhotoVisibility(int visibility) {
         ImageView mImageView = findViewById(R.id.picked_photo);
         mImageView.setVisibility(visibility);
@@ -342,23 +348,6 @@ public class MainActivity extends BaseActivity
     private void changeProgressBarStatus(int visibility) {
         ProgressBar pgsBar = findViewById(R.id.pBar);
         pgsBar.setVisibility(visibility);
-    }
-
-    private void initStampRecycleView(RecyclerView rView, List<StampObj> stampList) {
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
-        rView.setLayoutManager(mLayoutManager);
-
-        RecyclerView.Adapter mAdapter = new GridAdapter(this, stampList, this);
-        rView.setAdapter(mAdapter);
-    }
-
-    @Override
-    public void onItemClick(StampObj item) {
-        stampApi.sendImageId(item.getId());
-    }
-
-    private void cleanRealPathToFile() {
-        realPath = null;
     }
 
     // -------------------- =================== EVENTS ===================== ---------------------------------
@@ -389,6 +378,8 @@ public class MainActivity extends BaseActivity
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(StampListErrorEvent event) {
         changeProgressBarStatus(View.GONE);
+        changeStampPhotoVisibility(View.GONE);
+        cleanRealPathToFile();
         Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.stamp_photo_error), Toast.LENGTH_SHORT).show();
     }
 
