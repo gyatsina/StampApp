@@ -89,9 +89,13 @@ public class StampApi {
             public void onResponse(Call<List<StampObj>> call,
                                    Response<List<StampObj>> response) {
                 List<StampObj> list = response.body();
-                DebugLogger.e("Upload", "list[0].title " + list.get(0).getImage());
-
-                EventBus.getDefault().post(new StampListReceivedEvent(list));
+                DebugLogger.e("Upload", response.body()+"");
+//                DebugLogger.e("Upload", "list[0].title " + list.get(0).getImage());
+                if ((list != null) && (list.size()>0)) {
+                    EventBus.getDefault().post(new StampListReceivedEvent(list));
+                } else {
+                    EventBus.getDefault().post(new StampListErrorEvent());
+                }
             }
 
             @Override

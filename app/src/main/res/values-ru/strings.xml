@@ -21,4 +21,8 @@
 
     <string name="id_chosen">Выбранный id был выслан на backend</string>
     <string name="stamp_photo_error">Для этой марки не найдено результатов</string>
+
+    <string name="take_photo_menu">Сделать фото</string>
+    <string name="gallery_menu">Выбрать из галлереи</string>
+    <string name="options_text_menu">Выберите одну из опций:</string>
 </resources>

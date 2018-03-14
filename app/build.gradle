@@ -36,13 +36,13 @@ android {
             privatePassword = "$System.env.TOSH_AUTH_PASS"
         }
 
-        if (privateLogin == 'null') {
-            throw new GradleException("TOSH_AUTH_LOGIN is null!")
-        }
-
-        if (privatePassword == 'null') {
-            throw new GradleException("TOSH_AUTH_PASS is null!")
-        }
+//        if (privateLogin == 'null') {
+//            throw new GradleException("TOSH_AUTH_LOGIN is null!")
+//        }
+//
+//        if (privatePassword == 'null') {
+//            throw new GradleException("TOSH_AUTH_PASS is null!")
+//        }
 
         applicationVariants.all { variant ->
             variant.buildConfigField "String", "TOSH_APP_LOGIN", privateLogin
@@ -53,6 +53,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildToolsVersion '26.0.2'
 }
 
 dependencies {

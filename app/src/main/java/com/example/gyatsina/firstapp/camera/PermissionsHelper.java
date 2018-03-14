@@ -62,8 +62,8 @@ public class PermissionsHelper {
     * ======================== METHODS =============================
     */
     public static boolean isCameraPermissionGranted(@NonNull Context context) {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED;
+        boolean hasPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+        return hasPermission;
     }
 
     public static boolean isStogarePermissionGranted(@NonNull Context context) {

@@ -21,4 +21,8 @@
 
     <string name="id_chosen">Сhosen id was sent to backend</string>
     <string name="stamp_photo_error">No results for this stamp</string>
+
+    <string name="take_photo_menu">Take photo</string>
+    <string name="gallery_menu">Pick from gallery</string>
+    <string name="options_text_menu">Pick one of the options:</string>
 </resources>

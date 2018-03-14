@@ -2,13 +2,11 @@ package com.example.gyatsina.firstapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -19,7 +17,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,8 +38,8 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,11 +55,11 @@ public class MainActivity extends BaseActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_IMAGE_CAPTURE = 1000;
     private static final int REQUEST_READ_GALLERY = 42;
-    static final int REQUEST_TAKE_PHOTO = 1001;
     private PermissionsHelper permissionsHelper;
     private StampApi stampApi;
-    private File file;
     private String realPath;
+    private String cameraPhotoName;
+    private File cameraPhotoFile;
 
     private void initializeApi() {
         StampApplication app = (StampApplication) getApplication();
@@ -138,27 +135,6 @@ public class MainActivity extends BaseActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -234,11 +210,14 @@ public class MainActivity extends BaseActivity
                 // Error occurred while creating the File
             }
             // Continue only if the File was successfully created
+
             if (photoFile != null) {
                 DebugLogger.e("===== photoFile ", photoFile+"");
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
+                        "com.example.gyatsina.firstapp.fileprovider",
                         photoFile);
+//                Uri photoURI = Uri.fromFile(photoFile);
+                DebugLogger.e("===== photoURI ", photoURI+"");
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
@@ -249,12 +228,15 @@ public class MainActivity extends BaseActivity
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
+        String suffix = ".jpg";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
+                suffix,         /* suffix */
                 storageDir      /* directory */
         );
+        cameraPhotoFile = image;
+        cameraPhotoName = imageFileName + suffix;
 
         // Save a file: path for use with ACTION_VIEW intents
         realPath = image.getAbsolutePath();
@@ -265,7 +247,6 @@ public class MainActivity extends BaseActivity
     @Override
     public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
 
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -287,7 +268,6 @@ public class MainActivity extends BaseActivity
 
                         realPath = RealPathUtil.getRealPathUri(this, uri);
                         DebugLogger.e("================realPath gallery ", realPath + "");
-                        file = new File(realPath);
                         ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
                         Picasso.with(this).load(uri).into(mImageView);
                     }
@@ -298,63 +278,49 @@ public class MainActivity extends BaseActivity
 // https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media
                 if (resultCode == Activity.RESULT_OK) {
                     if (resultData != null) {
-                        Bundle extras = resultData.getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
-                        mImageView.setImageBitmap(imageBitmap);
+//                        Bundle extras = resultData.getExtras();
+////                        if(extras!=null) {
+//                            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                            ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
+//                            mImageView.setImageBitmap(imageBitmap);
+////                        }
+//
+////                        Uri tempUri = getImageUri(imageBitmap);
+////                        realPath = getRealPathFromURI(tempUri);
+////                        DebugLogger.e("================uri camera ", realPath);
 
-                        Uri tempUri = getImageUri(imageBitmap);
-//                        realPath = getRealPathFromURI(tempUri);
-//                        DebugLogger.e("================uri camera ", realPath);
+
+//                        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath(), cameraPhotoName);
+//                        Uri uri = Uri.fromFile(file);
+                        Uri uri = Uri.fromFile(cameraPhotoFile);
+
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                            bitmap = crupAndScale(bitmap, 300); // if you mind scaling
+                            ImageView mImageView = changeStampPhotoVisibility(View.VISIBLE);
+                            mImageView.setImageBitmap(bitmap);
+                        } catch (FileNotFoundException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
                 }
                 break;
         }
     }
 
-    public Uri getImageUri(Bitmap image) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), image, "Title", null);
-        return Uri.parse(path);
+    public static  Bitmap crupAndScale (Bitmap source,int scale){
+        int factor = source.getHeight() <= source.getWidth() ? source.getHeight(): source.getWidth();
+        int longer = source.getHeight() >= source.getWidth() ? source.getHeight(): source.getWidth();
+        int x = source.getHeight() >= source.getWidth() ?0:(longer-factor)/2;
+        int y = source.getHeight() <= source.getWidth() ?0:(longer-factor)/2;
+        source = Bitmap.createBitmap(source, x, y, factor, factor);
+        source = Bitmap.createScaledBitmap(source, scale, scale, false);
+        return source;
     }
-
-    public String getRealPathFromURI(Uri contentUri) {
-
-        String result;
-        Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
-        if (cursor == null) { // Source is Dropbox or other similar local file path
-            result = contentUri.getPath();
-        } else {
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            result = cursor.getString(idx);
-            cursor.close();
-        }
-        return result;
-
-    }
-
-    private boolean isExternalStorageAvailable() {
-        String state = Environment.getExternalStorageState();
-        return state.equals(Environment.MEDIA_MOUNTED);
-    }
-
-    private String getGalleryPhotoName(Uri contentUri) {
-        String displayName = null;
-        Cursor cursor = getContentResolver().query(contentUri,
-                null, // Which columns to return
-                null,       // WHERE clause; which rows to return (all rows)
-                null,       // WHERE clause selection arguments (none)
-                null); // Order-by clause (ascending by name)
-        if (cursor != null && cursor.moveToFirst()) {
-            displayName = cursor.getString(
-                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-        }
-
-        return displayName;
-    }
-
 
     private ImageView changeStampPhotoVisibility(int visibility) {
         ImageView mImageView = findViewById(R.id.picked_photo);
@@ -423,12 +389,12 @@ public class MainActivity extends BaseActivity
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(StampListErrorEvent event) {
         changeProgressBarStatus(View.GONE);
-        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.stamp_photo_error), Toast.LENGTH_SHORT);
+        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.stamp_photo_error), Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(ImageIdSentEvent event) {
-        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.camera_no_permission), Toast.LENGTH_SHORT);
+        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.id_chosen), Toast.LENGTH_SHORT).show();
         cleanRealPathToFile();
         changeStampRecycleViewVisibility(View.GONE);
         changeWelcomeTextVisibility(View.VISIBLE);
