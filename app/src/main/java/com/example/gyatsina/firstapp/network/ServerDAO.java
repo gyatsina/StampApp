@@ -6,6 +6,7 @@ import java.util.List;
 
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.Multipart;
@@ -46,7 +47,7 @@ public interface ServerDAO {
 
     @POST("addtoschudle/")
     Call<Void> sendImageId(
-            @Query("id") String id
+            @Body String id
     );
 
 //    @Multipart
