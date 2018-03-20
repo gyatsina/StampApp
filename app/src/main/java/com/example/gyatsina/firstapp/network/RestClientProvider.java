@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -23,7 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by gyatsina on 1/26/2018.
  */
 
-@Singleton
+@ApiScope
 public class RestClientProvider {
 
     private static final String TAG = RestClientProvider.class.getSimpleName();

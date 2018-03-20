@@ -13,12 +13,15 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * Created by gyatsina on 3/2/2018.
  */
 
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
-    private Context mContext;
+    @Inject
+    Context context;
     private List<StampObj> mDataset;
     private OnGridClickListener mOnGridClickListener;
 
@@ -36,10 +39,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public GridAdapter(Context c, List<StampObj> myDataset, OnGridClickListener onGridClickListener) {
-        mContext = c;
+    public GridAdapter(List<StampObj> myDataset, OnGridClickListener onGridClickListener) {
         mDataset = myDataset;
         mOnGridClickListener = onGridClickListener;
+        StampApplication.getAppComponent().inject(this);
     }
 
     // Create new views (invoked by the layout manager)
@@ -57,12 +60,11 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> {
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Picasso.with(mContext).load(mDataset.get(position).getImage()).into(holder.mImageView);
+        Picasso.with(context).load(mDataset.get(position).getImage()).into(holder.mImageView);
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                DebugLogger.e("==========", "CLICK");
                 mOnGridClickListener.onItemClick(mDataset.get(position));
             }
         });

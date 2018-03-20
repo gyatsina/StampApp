@@ -1,7 +1,5 @@
 package com.example.gyatsina.firstapp.network;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,7 +10,7 @@ import dagger.Provides;
 @Module
 public class ApiModule {
     @Provides
-    @Singleton
+    @ApiScope
     public ServerDAO provideServerDAO(RestClientProvider restClientProvider) {
         return restClientProvider.getRetrofit().create(ServerDAO.class);
     }

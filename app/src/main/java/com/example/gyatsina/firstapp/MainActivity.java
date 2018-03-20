@@ -72,7 +72,6 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        StampApplication.getAppComponent().inject(this);
 
         initializeApi();
 
@@ -314,7 +313,7 @@ public class MainActivity extends BaseActivity
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
         rView.setLayoutManager(mLayoutManager);
 
-        RecyclerView.Adapter mAdapter = new GridAdapter(this, stampList, this);
+        RecyclerView.Adapter mAdapter = new GridAdapter(stampList, this);
         rView.setAdapter(mAdapter);
     }
 

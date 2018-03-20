@@ -33,6 +33,7 @@ import static com.example.gyatsina.firstapp.network.events.LoginEvent.SUCCESS;
  * Created by gyatsina on 1/26/2018.
  */
 
+@ApiScope
 public class StampApi {
     private static final String TAG = StampApi.class.getSimpleName();
 

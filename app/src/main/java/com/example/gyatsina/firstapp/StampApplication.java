@@ -23,11 +23,20 @@ public class StampApplication extends Application {
         super.onCreate();
 
         initLogging();
-//        appComponent = buildComponent();
+        appComponent = buildAppComponent();
+        buildApiComponent();
+    }
+
+    private void buildApiComponent() {
         ApiComponent apiComponent = DaggerApiComponent.builder().build();
         setRestClientBaseUrl(apiComponent.getRestClient());
-
         mStampApi = apiComponent.getStamplApi();
+    }
+
+    protected AppComponent buildAppComponent() {
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .build();
     }
 
     public static AppComponent getAppComponent() {
@@ -47,10 +56,4 @@ public class StampApplication extends Application {
     public StampApi getStampApi() {
         return mStampApi;
     }
-
-//    protected AppComponent buildComponent() {
-//        return DaggerAppComponent.builder()
-//                .appModule(new AppModule(this))
-//                .build();
-//    }
 }
